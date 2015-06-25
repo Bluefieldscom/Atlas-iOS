@@ -640,6 +640,7 @@ static NSInteger const ATLPhotoActionSheet = 1000;
     BOOL success = [self.conversation sendMessage:message error:&error];
     if (success) {
         [self notifyDelegateOfMessageSend:message];
+        [self conversationMessageSuccessfullySent:message];
     } else {
         [self notifyDelegateOfMessageSendFailure:message error:error];
     }

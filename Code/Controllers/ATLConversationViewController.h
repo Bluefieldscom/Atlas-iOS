@@ -261,6 +261,12 @@ typedef NS_ENUM(NSUInteger, ATLAvatarItemDisplayFrequency) {
  */
 - (void)sendMessage:(LYRMessage *)message;
 
+/**
+ @abstract Informs the reciever that a message was successfully sent.
+ @discussion Custom Mitoo method, so we can send messages to our servers after sending to layer
+ */
+-(void)conversationMessageSuccessfullySent:(LYRMessage *)message;
+
 ///---------------------------
 /// @name Configuring Behavior
 ///---------------------------
