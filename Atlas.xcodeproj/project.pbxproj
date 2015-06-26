@@ -1090,6 +1090,23 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/Atlas\"",
+					"\"${PODS_ROOT}/Headers/Public/Atlas/Controllers\"",
+					"\"${PODS_ROOT}/Headers/Public/Atlas/Models\"",
+					"\"${PODS_ROOT}/Headers/Public/Atlas/Protocols\"",
+					"\"${PODS_ROOT}/Headers/Public/Atlas/Utilities\"",
+					"\"${PODS_ROOT}/Headers/Public/Atlas/Views\"",
+					"\"${PODS_ROOT}/Headers/Public/Atlas/Mitoo\"",
+					"\"${PODS_ROOT}/Headers/Public/Expecta\"",
+					"\"${PODS_ROOT}/Headers/Public/KIF\"",
+					"\"${PODS_ROOT}/Headers/Public/KIFViewControllerActions\"",
+					"\"${PODS_ROOT}/Headers/Public/LYRCountDownLatch\"",
+					"\"${PODS_ROOT}/Headers/Public/LayerKit\"",
+					"\"${PODS_ROOT}/Headers/Public/OCMock\"",
+				);
 				INFOPLIST_FILE = Examples/Programmatic/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1130,6 +1147,23 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/Headers/Public\"",
+					"\"${PODS_ROOT}/Headers/Public/Atlas\"",
+					"\"${PODS_ROOT}/Headers/Public/Atlas/Controllers\"",
+					"\"${PODS_ROOT}/Headers/Public/Atlas/Models\"",
+					"\"${PODS_ROOT}/Headers/Public/Atlas/Protocols\"",
+					"\"${PODS_ROOT}/Headers/Public/Atlas/Utilities\"",
+					"\"${PODS_ROOT}/Headers/Public/Atlas/Views\"",
+					"\"${PODS_ROOT}/Headers/Public/Atlas/Mitoo\"",
+					"\"${PODS_ROOT}/Headers/Public/Expecta\"",
+					"\"${PODS_ROOT}/Headers/Public/KIF\"",
+					"\"${PODS_ROOT}/Headers/Public/KIFViewControllerActions\"",
+					"\"${PODS_ROOT}/Headers/Public/LYRCountDownLatch\"",
+					"\"${PODS_ROOT}/Headers/Public/LayerKit\"",
+					"\"${PODS_ROOT}/Headers/Public/OCMock\"",
+				);
 				INFOPLIST_FILE = Examples/Programmatic/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

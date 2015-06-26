@@ -23,6 +23,7 @@
 #import <MapKit/MapKit.h>
 #import "ATLParticipant.h"
 #import "ATLBaseConversationViewController.h"
+#import "MitooConversationViewControllerDelegate.h"
 
 typedef NS_ENUM(NSUInteger, ATLAvatarItemDisplayFrequency) {
     ATLAvatarItemDisplayFrequencySection,
@@ -224,6 +225,12 @@ typedef NS_ENUM(NSUInteger, ATLAvatarItemDisplayFrequency) {
 @property (nonatomic, weak) id<ATLConversationViewControllerDelegate> delegate;
 
 /**
+ @abstract The `ATLConversationViewControllerDelegate` class informs the receiver to specific events that occurred within the controller.
+ */
+
+@property (nonatomic, weak) id<MitooConversationViewControllerDelegate> mitooDelegate;
+
+/**
  @abstract The `ATLConversationViewControllerDataSource` class presents an interface allowing
  for the display of information pertaining to specific messages in the conversation view controller
  */
@@ -260,12 +267,6 @@ typedef NS_ENUM(NSUInteger, ATLAvatarItemDisplayFrequency) {
  @param message The Message object to send.
  */
 - (void)sendMessage:(LYRMessage *)message;
-
-/**
- @abstract Informs the reciever that a message was successfully sent.
- @discussion Custom Mitoo method, so we can send messages to our servers after sending to layer
- */
--(void)conversationMessageSuccessfullySent:(LYRMessage *)message;
 
 ///---------------------------
 /// @name Configuring Behavior

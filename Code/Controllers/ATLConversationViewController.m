@@ -629,9 +629,53 @@ static NSInteger const ATLPhotoActionSheet = 1000;
     } else {
         completePushText = [NSString stringWithFormat:@"%@: %@", senderName, pushText];
     }
+
+    NSDictionary *pushOptions = [self getPushOptions:completePushText];
     
-    LYRMessage *message = ATLMessageForParts(self.layerClient, parts, completePushText, ATLPushNotificationSoundName);
+    NSError *error;
+    LYRMessage *message = [self.layerClient newMessageWithParts:parts options:pushOptions error:&error];
+    if (error) {
+        return nil;
+    }
+    
     return message;
+}
+
+-(NSDictionary *)getPushOptions:(NSString *)completePushText
+{
+    NSDictionary *pushNotificationOptions = @{LYRMessageOptionsPushNotificationAlertKey : completePushText,
+                                              LYRMessageOptionsPushNotificationSoundNameKey : ATLPushNotificationSoundName};
+    
+    NSDictionary *pushOptions;
+    
+    if ([self.mitooDelegate respondsToSelector:@selector(getConversationPushNotificationSubscribers)])
+    {
+        NSArray *pushClients = [self.mitooDelegate getConversationPushNotificationSubscribers];
+        
+        
+        if ([pushClients count] == 0)
+        {
+            pushOptions = pushNotificationOptions;
+        }
+        else
+        {
+            NSMutableDictionary *mutablePushOptions
+            = [NSMutableDictionary dictionaryWithCapacity:[pushClients count]];
+            
+            for (NSString *pushId in pushClients)
+            {
+                [mutablePushOptions setObject:pushNotificationOptions forKey:pushId];
+            }
+            
+            pushOptions = @{LYRMessageOptionsPushNotificationPerRecipientConfigurationKey:[mutablePushOptions copy]};
+        }
+    }
+    else
+    {
+        pushOptions = pushNotificationOptions;
+    }
+    
+    return pushOptions;
 }
 
 - (void)sendMessage:(LYRMessage *)message
@@ -640,7 +684,11 @@ static NSInteger const ATLPhotoActionSheet = 1000;
     BOOL success = [self.conversation sendMessage:message error:&error];
     if (success) {
         [self notifyDelegateOfMessageSend:message];
-        [self conversationMessageSuccessfullySent:message];
+        
+        if ([self.mitooDelegate respondsToSelector:@selector(conversationMessageSuccessfullySent:)])
+        {
+            [self.mitooDelegate conversationMessageSuccessfullySent:message];
+        }
     } else {
         [self notifyDelegateOfMessageSendFailure:message error:error];
     }
