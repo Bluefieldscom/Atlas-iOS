@@ -23,7 +23,6 @@
 @interface ATLAvatarImageView ()
 
 @property (nonatomic) UILabel *initialsLabel;
-@property (nonatomic) NSURLSessionDownloadTask *downloadTask;
 
 @end
 
@@ -94,32 +93,47 @@ NSString *const ATLAvatarImageViewAccessibilityLabel = @"ATLAvatarImageViewAcces
     return CGSizeMake(self.avatarImageViewDiameter, self.avatarImageViewDiameter);
 }
 
-- (void)resetView
-{
+- (void)resetView {
     self.avatarItem = nil;
     self.image = nil;
     self.initialsLabel.text = nil;
-    [self.downloadTask cancel];
-}
-
-- (void)dealloc
-{
-    [self.downloadTask cancel];
 }
 
 - (void)setAvatarItem:(id<ATLAvatarItem>)avatarItem
 {
+    //set image or initials initialls
+    [self populateAvatarImageOrInitialsForAvatarItem:avatarItem];
+    
+    //go grab image from url
     if ([avatarItem avatarImageURL]) {
-        self.initialsLabel.text = nil;
-        [self loadAvatarImageWithURL:[avatarItem avatarImageURL]];
-    } else if (avatarItem.avatarImage) {
-        self.initialsLabel.text = nil;
-        self.image = avatarItem.avatarImage;
-    } else if (avatarItem.avatarInitials) {
-        self.image = nil;
-        self.initialsLabel.text = avatarItem.avatarInitials;
+        [self fetchAvatarImageFromURLWithAvatarItem:avatarItem];
     }
     _avatarItem = avatarItem;
+}
+
+-(void)fetchAvatarImageFromURLWithAvatarItem:(id<ATLAvatarItem>)avatarItem {
+    self.initialsLabel.text = nil;
+    [self loadAvatarImageWithURL:[avatarItem avatarImageURL]];
+}
+
+-(void)populateAvatarImageOrInitialsForAvatarItem:(id<ATLAvatarItem>)avatarItem
+{
+    if (avatarItem.avatarImage) {
+        [self populateImageWithImage:avatarItem.avatarImage];
+    } else if (avatarItem.avatarInitials) {
+        [self populateInitialsLabelWithInitials:avatarItem.avatarInitials];
+    }
+}
+
+
+-(void)populateImageWithImage:(UIImage *)image {
+    self.initialsLabel.text = nil;
+    self.image = image;
+}
+
+-(void)populateInitialsLabelWithInitials:(NSString *)initials {
+    self.image = nil;
+    self.initialsLabel.text = initials;
 }
 
 - (void)setInitialsColor:(UIColor *)initialsColor
@@ -146,7 +160,7 @@ NSString *const ATLAvatarImageViewAccessibilityLabel = @"ATLAvatarImageViewAcces
     self.backgroundColor = imageViewBackgroundColor;
     _imageViewBackgroundColor = imageViewBackgroundColor;
 }
-         
+
 - (void)loadAvatarImageWithURL:(NSURL *)imageURL
 {
     if (![imageURL isKindOfClass:[NSURL class]] || imageURL.absoluteString.length == 0) {
@@ -163,35 +177,27 @@ NSString *const ATLAvatarImageViewAccessibilityLabel = @"ATLAvatarImageViewAcces
     }
     
     // If not, fetch the image and add to the cache
-    [self fetchImageFromRemoteImageURL:imageURL];
-}
-
-- (void)fetchImageFromRemoteImageURL:(NSURL *)remoteImageURL
-{
-    self.downloadTask = [[NSURLSession sharedSession] downloadTaskWithURL:remoteImageURL completionHandler:^(NSURL *location, NSURLResponse *response, NSError *error) {
-        if (!error && location) {
-            __block UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:location]];
-            if (image) {
-                [[[self class] sharedImageCache] setObject:image forKey:remoteImageURL.absoluteString cost:0];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self updateWithImage:image forRemoteImageURL:remoteImageURL];
-                });
-            }
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        UIImage *image = [UIImage imageWithData:[NSData dataWithContentsOfURL:imageURL]];
+        if (image) {
+            [[[self class] sharedImageCache] setObject:image forKey:stringURL cost:0];
         }
-    }];
-    [self.downloadTask resume];
-}
-
-- (void)updateWithImage:(UIImage *)image forRemoteImageURL:(NSURL *)remoteImageURL;
-{
-    [UIView animateWithDuration:0.2 animations:^{
-        self.alpha = 0.0;
-    } completion:^(BOOL finished) {
-        [UIView animateWithDuration:0.5 animations:^{
-            self.image = image;
-            self.alpha = 1.0;
-        }];
-    }];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // Try to avoid race conditions
+            if ([self.avatarItem avatarImageURL] && [[self.avatarItem avatarImageURL] isEqual:imageURL]) {
+                 if (image) {
+                    [UIView animateWithDuration:0.2 animations:^{
+                        self.alpha = 0.5;
+                    } completion:^(BOOL finished) {
+                        [UIView animateWithDuration:0.5 animations:^{
+                            self.image = image;
+                            self.alpha = 1.0;
+                        }];
+                    }];
+                }
+            }
+        });
+    });
 }
 
 - (void)configureInitialsLabelConstraint
