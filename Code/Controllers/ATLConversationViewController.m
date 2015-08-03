@@ -421,7 +421,13 @@ static NSInteger const ATLPhotoActionSheet = 1000;
     [cell shouldDisplayAvatarItem:willDisplayAvatarItem];
     
     if ([self shouldDisplayAvatarItemAtIndexPath:indexPath]) {
-        [cell updateWithSender:[self participantForIdentifier:message.sender.userID]];
+        
+        if ([self isMessageSentFromNonHuman:message]) {
+            [cell updateWithSender:[self systemUserForName:message.sender.name]];
+        }
+        else {
+            [cell updateWithSender:[self participantForIdentifier:message.sender.userID]];
+        }
     } else {
         [cell updateWithSender:nil];
     }
@@ -528,9 +534,6 @@ static NSInteger const ATLPhotoActionSheet = 1000;
 {
     if (!self.shouldDisplayAvatarItem) return NO;
     LYRMessage *message = [self.conversationDataSource messageAtCollectionViewIndexPath:indexPath];
-    if (message.sender.userID == nil) {
-        return NO;
-    }
     
     if ([message.sender.userID isEqualToString:self.layerClient.authenticatedUserID] && !self.shouldDisplayAvatarItemForAuthenticatedUser) {
         return NO;
@@ -1144,6 +1147,15 @@ static NSInteger const ATLPhotoActionSheet = 1000;
     }
 }
 
+- (id<ATLParticipant>)systemUserForName:(NSString *)name
+{
+    if ([self.dataSource respondsToSelector:@selector(conversationViewController:participantForIdentifier:)]) {
+        return [self.dataSource conversationViewController:self systemUserForName:name];
+    } else {
+        @throw [NSException exceptionWithName:NSInternalInconsistencyException reason:@"ATLConversationViewControllerDelegate must return a participant for an identifier" userInfo:nil];
+    }
+}
+
 - (NSAttributedString *)attributedStringForMessageDate:(LYRMessage *)message
 {
     NSAttributedString *dateString;
@@ -1363,14 +1375,34 @@ static NSInteger const ATLPhotoActionSheet = 1000;
 
 - (NSString *)participantNameForMessage:(LYRMessage *)message
 {
+    NSString *const UNKNOWN_USER = @"Unknown User";
     NSString *participantName;
-    if (message.sender.userID) {
-        id<ATLParticipant> participant = [self participantForIdentifier:message.sender.userID];
-        participantName = participant.fullName ?: ATLLocalizedString(@"atl.conversation.participant.unknown.key", @"Unknown User", nil);
-    } else {
+    
+    if ([self isMessageSentFromNonHuman:message])
+    {
         participantName = message.sender.name;
     }
+    else if (message.sender.userID)
+    {
+        id<ATLParticipant> participant = [self participantForIdentifier:message.sender.userID];
+        participantName = participant.fullName ?: UNKNOWN_USER;
+    }
+    else {
+        participantName = UNKNOWN_USER;
+    }
+    
     return participantName;
+}
+
+-(BOOL)isMessageSentFromNonHuman:(LYRMessage *)message
+{
+    if (!message.sender.userID && message.sender.name)
+    {
+        return YES;
+    }
+    else {
+        return NO;
+    }
 }
 
 #pragma mark - NSNotification Center Registration
