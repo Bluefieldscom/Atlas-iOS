@@ -111,8 +111,8 @@ NSString *const ATLAvatarImageViewAccessibilityLabel = @"ATLAvatarImageViewAcces
     _avatarItem = avatarItem;
 }
 
--(void)fetchAvatarImageFromURLWithAvatarItem:(id<ATLAvatarItem>)avatarItem {
-    self.initialsLabel.text = nil;
+-(void)fetchAvatarImageFromURLWithAvatarItem:(id<ATLAvatarItem>)avatarItem
+{
     [self loadAvatarImageWithURL:[avatarItem avatarImageURL]];
 }
 
@@ -172,6 +172,7 @@ NSString *const ATLAvatarImageViewAccessibilityLabel = @"ATLAvatarImageViewAcces
     __block NSString *stringURL = imageURL.absoluteString;
     UIImage *image = [[[self class] sharedImageCache] objectForKey:stringURL];
     if (image) {
+        self.initialsLabel.text = nil;
         self.image = image;
         return;
     }
@@ -190,6 +191,7 @@ NSString *const ATLAvatarImageViewAccessibilityLabel = @"ATLAvatarImageViewAcces
                         self.alpha = 0.5;
                     } completion:^(BOOL finished) {
                         [UIView animateWithDuration:0.5 animations:^{
+                            self.initialsLabel.text = nil;
                             self.image = image;
                             self.alpha = 1.0;
                         }];

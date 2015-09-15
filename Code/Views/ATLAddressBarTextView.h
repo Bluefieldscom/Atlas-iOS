@@ -35,4 +35,6 @@ extern CGFloat const ATLAddressBarTextContainerInset;
 
 @property (nonatomic) UIColor *addressBarHighlightColor UI_APPEARANCE_SELECTOR;
 
+@property (nonatomic) UIColor *toLabelColor UI_APPEARANCE_SELECTOR;
+
 @end

@@ -98,6 +98,13 @@ static CGFloat const ATLLineSpacing = 6;
     [super updateConstraints];
 }
 
+- (void)setToLabelColor:(UIColor *)toLabelColor
+{
+    if (!toLabelColor) return;
+    self.toLabel.textColor = toLabelColor;
+    _toLabelColor = toLabelColor;
+}
+
 - (void)setAddressBarFont:(UIFont *)addressBarFont
 {
     if (!addressBarFont) return;
