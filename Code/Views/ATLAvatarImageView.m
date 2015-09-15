@@ -186,7 +186,7 @@ NSString *const ATLAvatarImageViewAccessibilityLabel = @"ATLAvatarImageViewAcces
         dispatch_async(dispatch_get_main_queue(), ^{
             // Try to avoid race conditions
             if ([self.avatarItem avatarImageURL] && [[self.avatarItem avatarImageURL] isEqual:imageURL]) {
-                 if (image) {
+                if (image) {
                     [UIView animateWithDuration:0.2 animations:^{
                         self.alpha = 0.5;
                     } completion:^(BOOL finished) {
@@ -209,5 +209,5 @@ NSString *const ATLAvatarImageViewAccessibilityLabel = @"ATLAvatarImageViewAcces
     [self addConstraint:[NSLayoutConstraint constraintWithItem:self.initialsLabel attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeTop multiplier:1.0 constant:3]];
     [self addConstraint:[NSLayoutConstraint constraintWithItem:self.initialsLabel attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-3]];
 }
-    
+
 @end
