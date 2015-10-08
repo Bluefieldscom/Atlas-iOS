@@ -228,6 +228,10 @@ static CGFloat const ATLMaxScrollDistanceFromBottom = 150;
 
 - (void)keyboardWillShow:(NSNotification *)notification
 {
+    if (!(self.isViewLoaded && self.view.window)) {
+        return;
+    }
+    
     if ([[self navigationController] modalPresentationStyle] == UIModalPresentationPopover) {
         return;
     }
@@ -236,9 +240,14 @@ static CGFloat const ATLMaxScrollDistanceFromBottom = 150;
 
 - (void)keyboardWillHide:(NSNotification *)notification
 {
+    if (!(self.isViewLoaded && self.view.window)) {
+        return;
+    }
+    
     if (![self.navigationController.viewControllers containsObject:self]) {
         return;
     }
+    
     [self configureWithKeyboardNotification:notification];
 }
 
