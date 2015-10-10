@@ -109,15 +109,16 @@ NSString *const ATLAvatarImageViewAccessibilityLabel = @"ATLAvatarImageViewAcces
 
 - (void)setAvatarItem:(id<ATLAvatarItem>)avatarItem
 {
-    if ([avatarItem avatarImageURL]) {
-        self.initialsLabel.text = nil;
-        [self loadAvatarImageWithURL:[avatarItem avatarImageURL]];
-    } else if (avatarItem.avatarImage) {
-        self.initialsLabel.text = nil;
-        self.image = avatarItem.avatarImage;
+    //set image or initials if available
+    if (avatarItem.avatarImage) {
+        [self populateImageWithImage:avatarItem.avatarImage];
     } else if (avatarItem.avatarInitials) {
-        self.image = nil;
-        self.initialsLabel.text = avatarItem.avatarInitials;
+        [self populateInitialsLabelWithInitials:avatarItem.avatarInitials];
+    }
+    
+    //grab image from url if available
+    if ([avatarItem avatarImageURL]) {
+        [self loadAvatarImageWithURL:[avatarItem avatarImageURL]];
     }
     _avatarItem = avatarItem;
 }
@@ -146,6 +147,20 @@ NSString *const ATLAvatarImageViewAccessibilityLabel = @"ATLAvatarImageViewAcces
     self.backgroundColor = imageViewBackgroundColor;
     _imageViewBackgroundColor = imageViewBackgroundColor;
 }
+
+#pragma mark ATLAvatarImage setter helper methods
+//these methods are for populating the either the initials label or the avatarImage depending
+//on what data is present in the avatarItem. The assumption is that image gets first preference if both were available.
+
+-(void)populateImageWithImage:(UIImage *)image {
+    self.initialsLabel.text = nil;
+    self.image = image;
+}
+
+-(void)populateInitialsLabelWithInitials:(NSString *)initials {
+    self.image = nil;
+    self.initialsLabel.text = initials;
+}
          
 - (void)loadAvatarImageWithURL:(NSURL *)imageURL
 {
@@ -158,6 +173,7 @@ NSString *const ATLAvatarImageViewAccessibilityLabel = @"ATLAvatarImageViewAcces
     __block NSString *stringURL = imageURL.absoluteString;
     UIImage *image = [[[self class] sharedImageCache] objectForKey:stringURL];
     if (image) {
+        self.initialsLabel.text = nil;
         self.image = image;
         return;
     }
@@ -174,7 +190,7 @@ NSString *const ATLAvatarImageViewAccessibilityLabel = @"ATLAvatarImageViewAcces
             if (image) {
                 [[[self class] sharedImageCache] setObject:image forKey:remoteImageURL.absoluteString cost:0];
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self updateWithImage:image forRemoteImageURL:remoteImageURL];
+                    [self updateWithImage:image];
                 });
             }
         }
@@ -182,12 +198,13 @@ NSString *const ATLAvatarImageViewAccessibilityLabel = @"ATLAvatarImageViewAcces
     [self.downloadTask resume];
 }
 
-- (void)updateWithImage:(UIImage *)image forRemoteImageURL:(NSURL *)remoteImageURL;
+- (void)updateWithImage:(UIImage *)image
 {
     [UIView animateWithDuration:0.2 animations:^{
         self.alpha = 0.0;
     } completion:^(BOOL finished) {
         [UIView animateWithDuration:0.5 animations:^{
+            self.initialsLabel.text = nil;
             self.image = image;
             self.alpha = 1.0;
         }];
