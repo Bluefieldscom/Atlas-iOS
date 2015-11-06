@@ -132,4 +132,9 @@
     
 }
 
+- (id<ATLParticipant>)conversationViewController:(ATLConversationViewController *)conversationViewController systemUserForName:(NSString *)name
+{
+    return nil;
+}
+
 @end

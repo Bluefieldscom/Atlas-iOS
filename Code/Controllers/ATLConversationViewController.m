@@ -634,7 +634,7 @@ static NSInteger const ATLPhotoActionSheet = 1000;
         completePushText = [NSString stringWithFormat:@"%@: %@", senderName, pushText];
     }
 
-    NSDictionary *pushOptions = [self getPushOptions:completePushText];
+    NSDictionary *pushOptions = [self getPushOptions:completePushText pushSound:ATLPushNotificationSoundName];
     
     NSError *error;
     LYRMessage *message = [self.layerClient newMessageWithParts:parts options:pushOptions error:&error];
@@ -645,41 +645,27 @@ static NSInteger const ATLPhotoActionSheet = 1000;
     return message;
 }
 
--(NSDictionary *)getPushOptions:(NSString *)completePushText
+-(NSDictionary *)getPushOptions:(NSString *)pushText pushSound:(NSString *)pushSound
 {
-    NSDictionary *pushNotificationOptions = @{LYRMessageOptionsPushNotificationAlertKey : completePushText,
-                                              LYRMessageOptionsPushNotificationSoundNameKey : ATLPushNotificationSoundName};
-    
-    NSDictionary *pushOptions;
+    LYRPushNotificationConfiguration *defaultConfiguration = [LYRPushNotificationConfiguration new];
     
     if ([self.mitooDelegate respondsToSelector:@selector(getConversationPushNotificationSubscribers)])
     {
         NSArray *pushClients = [self.mitooDelegate getConversationPushNotificationSubscribers];
         
-        
-        if ([pushClients count] == 0)
+        if ([pushClients count] > 0)
         {
-            pushOptions = pushNotificationOptions;
-        }
-        else
-        {
-            NSMutableDictionary *mutablePushOptions
-            = [NSMutableDictionary dictionaryWithCapacity:[pushClients count]];
-            
             for (NSString *pushId in pushClients)
             {
-                [mutablePushOptions setObject:pushNotificationOptions forKey:pushId];
+                LYRPushNotificationConfiguration *newDefaultConfiguration = [LYRPushNotificationConfiguration new];
+                newDefaultConfiguration.alert = pushText;
+                newDefaultConfiguration.sound = pushSound;
+                [defaultConfiguration setPushConfiguration:newDefaultConfiguration forParticipant:pushId];
             }
-            
-            pushOptions = @{LYRMessageOptionsPushNotificationPerRecipientConfigurationKey:[mutablePushOptions copy]};
         }
     }
-    else
-    {
-        pushOptions = pushNotificationOptions;
-    }
     
-    return pushOptions;
+    return @{ LYRMessageOptionsPushNotificationConfigurationKey: defaultConfiguration };
 }
 
 - (void)sendMessage:(LYRMessage *)message
